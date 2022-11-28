@@ -1,8 +1,33 @@
 to setup
   clear-all
+  set-default-shape turtles "person"
   ; Definimos primero las dimensiones y la forma del vagon
   dibuja-vagon
+  ask patches [
+    let aleatorio random 100
+    if aleatorio  < densidadAdentro [
+      sprout 1 [
+        set color blue
+        let x-cor (2 + random 97)
+        let y-cor (27 + random 32)
+        set xcor x-cor
+        set ycor y-cor
+      ]
+    ]
+    let aleatorio2 random 100
+    if aleatorio  < densidadAdentro [
+      sprout 1 [
+        set color red
+        let x-cor (random 100)
+        let y-cor (random 25)
+        set xcor x-cor
+        set ycor y-cor
+      ]
+    ]
+  ]
+  reset-ticks
 end
+
 
 to dibuja-vagon
   let tempCount 0
@@ -130,30 +155,60 @@ NIL
 1
 
 SLIDER
-42
-128
-214
-161
+28
+200
+200
+233
 NumSalidas
 NumSalidas
 1
-10
-3.0
+7
+7.0
 1
 1
 NIL
 HORIZONTAL
 
 SWITCH
-45
-174
-191
-207
+30
+248
+176
+281
 HasSeparation
 HasSeparation
-0
+1
 1
 -1000
+
+SLIDER
+28
+98
+200
+131
+densidadAdentro
+densidadAdentro
+0
+100
+8.0
+1
+1
+%
+HORIZONTAL
+
+SLIDER
+25
+149
+197
+182
+densidadAfuera
+densidadAfuera
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
