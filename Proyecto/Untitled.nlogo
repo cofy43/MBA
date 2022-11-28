@@ -1,44 +1,122 @@
+turtles-own [
+  meta
+  fila
+]
+
 to setup
   clear-all
   set-default-shape turtles "person"
-  print SeparationSize
-  print "valor:"
-  print 26 - SeparationSize
-  let init 26 - SeparationSize + 1
   ; Definimos primero las dimensiones y la forma del vagon
   dibuja-vagon
-  ask patches [
-    let aleatorio random 100
-    if aleatorio  < densidadAdentro [
-      sprout 1 [
-        set color blue
-        let x-cor (2 + random 97)
-        let y-cor (27 + random 32)
-        set xcor x-cor
-        set ycor y-cor
-        set size 1.2
+  ; Asign
+  dibuja-usuarios
+  reset-ticks
+end
+
+to go
+  ; lo de adentro
+  ask turtles with [color = blue] [
+    let target-patch min-one-of (patches in-radius 25 with [pcolor = green]) [distance myself]
+    if not meta and target-patch != nobody  [
+      face target-patch
+    ]
+    ;face one-of patches with [pcolor = green]
+    if xcor > 0 [ fd 1 ]
+    if pcolor = white [
+      rt random 180
+      fd 3
+    ]
+
+    if pcolor = green [
+      set meta true
+    ]
+
+    if meta [
+      set heading 180
+      fd 1
+    ]
+  ]
+
+  ask turtles with [color = red] [
+    ifelse HasSeparation and not fila [
+      let target-patch min-one-of (patches in-radius 25 with [pcolor = yellow]) [distance myself]
+      if not meta and target-patch != nobody  [
+        face target-patch
+      ]
+      ;face one-of patches with [pcolor = ]
+    ] [
+      let target-patch min-one-of (patches in-radius 25 with [pcolor = green]) [distance myself]
+      if not meta and target-patch != nobody  [
+        face target-patch
       ]
     ]
-    let aleatorio2 random 100
-    if aleatorio  < densidadAfuera [
-      sprout 1 [
-        set color red
-        let x-cor (random 100)
-        let y-cor (random 26)
+    if not HasSeparation and not meta [
+      let target-patch min-one-of (patches in-radius 25 with [pcolor = green]) [distance myself]
+      if not meta and target-patch != nobody  [
+        face target-patch
+      ]
+    ]
+
+    ifelse any? turtles-here with [ color = blue ] [
+      set heading one-of [90 270]
+      fd 1
+      set heading 180
+      fd 1
+      set heading 0
+    ] [
+      fd 1
+    ]
+
+    if pcolor = white [
+      rt random 180
+      fd 1
+    ]
+
+    if pcolor = yellow [
+      set fila true
+    ]
+
+    if pcolor = green [
+      set meta true
+    ]
+
+    if meta [
+      set heading 0
+      fd 1
+    ]
+  ]
+  tick
+end
+
+to dibuja-usuarios
+  let init 7 - SeparationSize
+  create-turtles UsuariosAdentro [
+    set color blue
+    let x-cor (2 + random 37)
+    let y-cor (9 + random 9)
+    set xcor x-cor
+    set ycor y-cor
+    set meta false
+    set size 1
+  ]
+
+  create-turtles UsuariosAfuera [
+    set color red
+        let x-cor (random 40)
+        let y-cor (random 6)
         set xcor x-cor
         set ycor y-cor
+        set meta false
+        set fila false
         ; verificamos si tenemos zonas de espera
         ; en cuyo caso restingimos a las personas a dicha zona
-        while [HasSeparation and y-cor >= init and ycor <= 25  and pcolor != yellow] [
-          set x-cor (random 100)
+        while [HasSeparation and y-cor > init and ycor < 7 and pcolor != yellow] [
+          set x-cor (random 40)
           set xcor x-cor
         ]
 
-        set size 1.2
-      ]
-    ]
+        set size 1
   ]
-  reset-ticks
 end
 
 
@@ -48,33 +126,30 @@ to dibuja-vagon
   let x 0
   let y 0
   let printMargin true
-  let fragmentSize (98 / NumSalidas)
+
+  let fragmentSize (38 / NumSalidas)
   let exitSize (ceiling (fragmentSize / 2))
   let marginSize (ceiling  (exitSize / 3))
   let tempMarginSize marginSize * 2 - 1
   let doubleMarginSizePatch 1 + marginSize
 
-  print fragmentSize
-  print exitSize
-  print marginSize
-
   while [y <= world-height] [
     while [x <= world-width] [
       ; Horizontal superior
-      if y = 59 and x > 0 and x < 100 [
+      if y = 19 and x > 0 and x < 40 [
         ask patch x y [set pcolor white]
       ]
       ; Vertical izquierda
-      if x = 1 and y < 60 and y > 25 [
+      if x = 1 and y < 20 and y > 8 [
         ask patch x y [set pcolor white]
       ]
       ; Vertical derecha
-      if x = 99  and y < 60 and y > 25 [
+      if x = 39  and y < 20 and y > 8 [
         ask patch x y [set pcolor white]
       ]
       ; Horizontal inferio
       ; aqui depende del numero de salidas seleccionadas
-      if y = 26 and x > 0 and x < 100 [
+      if y = 8 and x > 0 and x < 40 [
 
         if tempCount > marginSize and printMargin [
           if x >= doubleMarginSizePatch [
@@ -84,26 +159,29 @@ to dibuja-vagon
           set tempCount 0
         ]
 
+
         if tempCount > exitSize and not printMargin [
           set printMargin true
           set tempCountExit (tempCountExit + 1)
           set tempCount 0
         ]
 
-        if printMargin or tempCountExit = NumSalidas [
+        ifelse printMargin or tempCountExit = NumSalidas [
           ask patch x y [set pcolor white]
           if HasSeparation [
             let tempSeparationSize SeparationSize - 1
             while [tempSeparationSize >= 0] [
-              ask patch x (y - tempSeparationSize) [set pcolor yellow]
+              ask patch x (y - tempSeparationSize - 1) [set pcolor yellow]
               set tempSeparationSize (tempSeparationSize - 1)
             ]
           ]
+        ] [
+          ask patch x y [set pcolor green]
         ]
 
         set tempCount (tempCount + 1)
       ]
-
+      ask patch 39 8 [set pcolor white]
       set x (x + 1)
     ]
     set tempCount 0
@@ -113,26 +191,26 @@ to dibuja-vagon
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-360
-10
-1221
-534
+305
+17
+1272
+517
 -1
 -1
-8.45
+23.4
 1
 10
 1
 1
 1
 0
-1
-1
+0
+0
 1
 0
-100
+40
 0
-60
+20
 0
 0
 1
@@ -140,10 +218,10 @@ ticks
 30.0
 
 BUTTON
-25
-23
-91
-56
+36
+16
+102
+49
 NIL
 setup
 NIL
@@ -157,25 +235,25 @@ NIL
 1
 
 SLIDER
-28
-200
-200
-233
+27
+64
+199
+97
 NumSalidas
 NumSalidas
 1
 7
-4.0
+7.0
 1
 1
 NIL
 HORIZONTAL
 
 SWITCH
-30
-261
-176
-294
+29
+205
+175
+238
 HasSeparation
 HasSeparation
 0
@@ -184,29 +262,29 @@ HasSeparation
 
 SLIDER
 28
-98
+108
 200
-131
-densidadAdentro
-densidadAdentro
+141
+UsuariosAdentro
+UsuariosAdentro
 0
-100
-30.0
+200
+70.0
 1
 1
 %
 HORIZONTAL
 
 SLIDER
-25
-149
-197
-182
-densidadAfuera
-densidadAfuera
+28
+155
+200
+188
+UsuariosAfuera
+UsuariosAfuera
 0
 100
-8.0
+100.0
 1
 1
 NIL
@@ -214,18 +292,54 @@ HORIZONTAL
 
 SLIDER
 29
-306
+250
 201
-339
+283
 SeparationSize
 SeparationSize
 0
-25
-20.0
+6
+5.0
 1
 1
 NIL
 HORIZONTAL
+
+BUTTON
+128
+16
+191
+49
+NIL
+go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+PLOT
+26
+294
+263
+465
+Usuuarios fuera del vagón
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -15390905 true "" "plot count turtles with [color = blue and ycor < 13]"
+"pen-1" 1.0 0 -8053223 true "" "plot count turtles with [color = red and ycor < 13]"
 
 @#$#@#$#@
 ## WHAT IS IT?
