@@ -1,8 +1,46 @@
 to setup
   clear-all
+  set-default-shape turtles "person"
+  print SeparationSize
+  print "valor:"
+  print 26 - SeparationSize
+  let init 2 - SeparationSize
   ; Definimos primero las dimensiones y la forma del vagon
   dibuja-vagon
+  ask patches [
+    let aleatorio random 100
+    if aleatorio  < densidadAdentro [
+      sprout 1 [
+        set color blue
+        let x-cor (2 + random 97)
+        let y-cor (27 + random 32)
+        set xcor x-cor
+        set ycor y-cor
+        set size 1.2
+      ]
+    ]
+    let aleatorio2 random 100
+    if aleatorio  < densidadAfuera [
+      sprout 1 [
+        set color red
+        let x-cor (random 100)
+        let y-cor (random 26)
+        set xcor x-cor
+        set ycor y-cor
+        ; verificamos si tenemos zonas de espera
+        ; en cuyo caso restingimos a las personas a dicha zona
+        while [HasSeparation and y-cor >= init and ycor <= 25  and pcolor != yellow] [
+          set x-cor (random 100)
+          set xcor x-cor
+        ]
+
+        set size 1.2
+      ]
+    ]
+  ]
+  reset-ticks
 end
+
 
 to dibuja-vagon
   let tempCount 0
@@ -10,9 +48,11 @@ to dibuja-vagon
   let x 0
   let y 0
   let printMargin true
-  let fragmentSize (78 / NumSalidas)
+  let fragmentSize (98 / NumSalidas)
   let exitSize (ceiling (fragmentSize / 2))
-  let marginSize (floor  (exitSize / 2))
+  let marginSize (ceiling  (exitSize / 3))
+  let tempMarginSize marginSize * 2 - 1
+  let doubleMarginSizePatch 1 + marginSize
 
   print fragmentSize
   print exitSize
@@ -21,52 +61,44 @@ to dibuja-vagon
   while [y <= world-height] [
     while [x <= world-width] [
       ; Horizontal superior
-      if y = 39 and x > 0 and x < 80 [
+      if y = 59 and x > 0 and x < 100 [
         ask patch x y [set pcolor white]
       ]
       ; Vertical izquierda
-      if x = 1 and y < 40 and y > 15 [
+      if x = 1 and y < 60 and y > 25 [
         ask patch x y [set pcolor white]
       ]
       ; Vertical derecha
-      if x = 79  and y < 40 and y > 15 [
+      if x = 99  and y < 60 and y > 25 [
         ask patch x y [set pcolor white]
       ]
       ; Horizontal inferio
       ; aqui depende del numero de salidas seleccionadas
-      if y = 16 and x > 0 and x < 80 [
+      if y = 26 and x > 0 and x < 100 [
 
         if tempCount > marginSize and printMargin [
+          if x >= doubleMarginSizePatch [
+            set marginSize tempMarginSize
+          ]
           set printMargin false
           set tempCount 0
-          if HasSeparation and tempCountExit != NumSalidas [
-            ask patch (x - 1) (y - 1) [set pcolor yellow]
-            ask patch (x - 1) (y - 2) [set pcolor yellow]
-            ask patch (x - 1) (y - 3) [set pcolor yellow]
-            ask patch (x - 1) (y - 4) [set pcolor yellow]
-            ask patch (x - 1) (y - 5) [set pcolor yellow]
-            ask patch (x - 1) (y - 6) [set pcolor yellow]
-            ask patch (x - 1) (y - 7) [set pcolor yellow]
-          ]
         ]
 
         if tempCount > exitSize and not printMargin [
           set printMargin true
           set tempCountExit (tempCountExit + 1)
           set tempCount 0
-          if HasSeparation and tempCountExit != NumSalidas [
-            ask patch (x - ) (y - 1) [set pcolor yellow]
-            ask patch (x - 1) (y - 2) [set pcolor yellow]
-            ask patch (x - 1) (y - 3) [set pcolor yellow]
-            ask patch (x - 1) (y - 4) [set pcolor yellow]
-            ask patch (x - 1) (y - 5) [set pcolor yellow]
-            ask patch (x - 1) (y - 6) [set pcolor yellow]
-            ask patch (x - 1) (y - 7) [set pcolor yellow]
-          ]
         ]
 
         if printMargin or tempCountExit = NumSalidas [
           ask patch x y [set pcolor white]
+          if HasSeparation [
+            let tempSeparationSize SeparationSize - 1
+            while [tempSeparationSize >= 0] [
+              ask patch x (y - tempSeparationSize) [set pcolor yellow]
+              set tempSeparationSize (tempSeparationSize - 1)
+            ]
+          ]
         ]
 
         set tempCount (tempCount + 1)
@@ -81,13 +113,13 @@ to dibuja-vagon
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-324
-23
-1385
-565
+360
+10
+1221
+534
 -1
 -1
-13.0
+8.45
 1
 10
 1
@@ -98,9 +130,9 @@ GRAPHICS-WINDOW
 1
 1
 0
-80
+100
 0
-40
+60
 0
 0
 1
@@ -125,14 +157,14 @@ NIL
 1
 
 SLIDER
-42
-128
-214
-161
+28
+200
+200
+233
 NumSalidas
 NumSalidas
 1
-10
+7
 4.0
 1
 1
@@ -140,15 +172,60 @@ NIL
 HORIZONTAL
 
 SWITCH
-45
-174
-191
-207
+30
+261
+176
+294
 HasSeparation
 HasSeparation
 0
 1
 -1000
+
+SLIDER
+28
+98
+200
+131
+densidadAdentro
+densidadAdentro
+0
+100
+30.0
+1
+1
+%
+HORIZONTAL
+
+SLIDER
+25
+149
+197
+182
+densidadAfuera
+densidadAfuera
+0
+100
+8.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+29
+306
+201
+339
+SeparationSize
+SeparationSize
+0
+25
+11.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?

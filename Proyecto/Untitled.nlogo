@@ -1,6 +1,10 @@
 to setup
   clear-all
   set-default-shape turtles "person"
+  print SeparationSize
+  print "valor:"
+  print 26 - SeparationSize
+  let init 26 - SeparationSize + 1
   ; Definimos primero las dimensiones y la forma del vagon
   dibuja-vagon
   ask patches [
@@ -25,7 +29,7 @@ to setup
         set ycor y-cor
         ; verificamos si tenemos zonas de espera
         ; en cuyo caso restingimos a las personas a dicha zona
-        while [HasSeparation and y-cor >= 19 and ycor <= 25  and pcolor != yellow] [
+        while [HasSeparation and y-cor >= init and ycor <= 25  and pcolor != yellow] [
           set x-cor (random 100)
           set xcor x-cor
         ]
@@ -89,13 +93,11 @@ to dibuja-vagon
         if printMargin or tempCountExit = NumSalidas [
           ask patch x y [set pcolor white]
           if HasSeparation [
-            ask patch x (y - 1) [set pcolor yellow]
-            ask patch x (y - 2) [set pcolor yellow]
-            ask patch x (y - 3) [set pcolor yellow]
-            ask patch x (y - 4) [set pcolor yellow]
-            ask patch x (y - 5) [set pcolor yellow]
-            ask patch x (y - 6) [set pcolor yellow]
-            ask patch x (y - 7) [set pcolor yellow]
+            let tempSeparationSize SeparationSize - 1
+            while [tempSeparationSize >= 0] [
+              ask patch x (y - tempSeparationSize) [set pcolor yellow]
+              set tempSeparationSize (tempSeparationSize - 1)
+            ]
           ]
         ]
 
@@ -171,9 +173,9 @@ HORIZONTAL
 
 SWITCH
 30
-248
+261
 176
-281
+294
 HasSeparation
 HasSeparation
 0
@@ -205,6 +207,21 @@ densidadAfuera
 0
 100
 8.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+29
+306
+201
+339
+SeparationSize
+SeparationSize
+0
+25
+20.0
 1
 1
 NIL
