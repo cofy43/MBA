@@ -27,9 +27,7 @@ to setup
         ; en cuyo caso restingimos a las personas a dicha zona
         while [HasSeparation and y-cor >= 19 and ycor <= 25  and pcolor != yellow] [
           set x-cor (random 100)
-          ;set y-cor (random 26)
           set xcor x-cor
-          ; set ycor y-cor
         ]
 
         set size 1.2
@@ -80,30 +78,12 @@ to dibuja-vagon
           ]
           set printMargin false
           set tempCount 0
-          ;if HasSeparation and tempCountExit != NumSalidas [
-          ;  ask patch (x - 1) (y - 1) [set pcolor yellow]
-          ;  ask patch (x - 1) (y - 2) [set pcolor yellow]
-          ;  ask patch (x - 1) (y - 3) [set pcolor yellow]
-          ;  ask patch (x - 1) (y - 4) [set pcolor yellow]
-          ;  ask patch (x - 1) (y - 5) [set pcolor yellow]
-          ;  ask patch (x - 1) (y - 6) [set pcolor yellow]
-          ;  ask patch (x - 1) (y - 7) [set pcolor yellow]
-          ;]
         ]
 
         if tempCount > exitSize and not printMargin [
           set printMargin true
           set tempCountExit (tempCountExit + 1)
           set tempCount 0
-          ;if HasSeparation and tempCountExit <= NumSalidas [
-          ;  ask patch x (y - 1) [set pcolor yellow]
-          ;  ask patch x (y - 2) [set pcolor yellow]
-          ;  ask patch x (y - 3) [set pcolor yellow]
-          ;  ask patch x (y - 4) [set pcolor yellow]
-          ;  ask patch x (y - 5) [set pcolor yellow]
-          ;  ask patch x (y - 6) [set pcolor yellow]
-          ;  ask patch x (y - 7) [set pcolor yellow]
-          ;]
         ]
 
         if printMargin or tempCountExit = NumSalidas [
