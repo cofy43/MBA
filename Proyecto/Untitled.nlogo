@@ -243,7 +243,7 @@ NumSalidas
 NumSalidas
 1
 7
-7.0
+5.0
 1
 1
 NIL
@@ -299,7 +299,7 @@ SeparationSize
 SeparationSize
 0
 6
-5.0
+6.0
 1
 1
 NIL
