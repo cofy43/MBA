@@ -89,7 +89,7 @@ to go
 end
 
 to dibuja-usuarios
-  let init 7 - SeparationSize
+  let init 8 - SeparationSize
   create-turtles UsuariosAdentro [
     set color blue
     let x-cor (2 + random 37)
@@ -103,14 +103,14 @@ to dibuja-usuarios
   create-turtles UsuariosAfuera [
     set color red
         let x-cor (random 40)
-        let y-cor (random 7)
+        let y-cor (random 8)
         set xcor x-cor
         set ycor y-cor
         set meta false
         set fila false
         ; verificamos si tenemos zonas de espera
         ; en cuyo caso restingimos a las personas a dicha zona
-        while [HasSeparation and y-cor > init and ycor < 8 and pcolor != yellow] [
+        while [HasSeparation and y-cor >= init and ycor < 8 and pcolor != yellow] [
           set x-cor (random 40)
           set xcor x-cor
         ]
@@ -301,8 +301,8 @@ SLIDER
 SeparationSize
 SeparationSize
 1
-6
-1.0
+8
+8.0
 1
 1
 NIL
