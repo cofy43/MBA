@@ -8,36 +8,65 @@ to setup
   set-default-shape turtles "person"
   ; Definimos primero las dimensiones y la forma del vagon
   dibuja-vagon
-  ; Asign
+  ; Posicionamos a los agentes dentro y fuera del vagon
   dibuja-usuarios
   reset-ticks
 end
 
 to go
-  ; lo de adentro
+  ; Comportamiento de los agentes que estan dentro del vagon
   ask turtles with [color = blue] [
+    ; Apuntamos a la salida mas proxima
     let target-patch min-one-of (patches in-radius 25 with [pcolor = green]) [distance myself]
     if not meta and target-patch != nobody  [
       face target-patch
     ]
-    ;face one-of patches with [pcolor = green]
+    ; Verificamos que no nos salgamos del mapa
     if xcor > 0 [ fd 1 ]
+    ; Verificamos que no nos salgamos del vagon
     if pcolor = white [
       rt random 180
       fd 3
     ]
+    ; Verificamos que no colicionemos con algun agente
+    ifelse any? turtles-here with [ color = blue ] [
+      ; Si existe las zonas de espera lo que haremos sera alegarnos de ella procurando
+      ; manenernos en el centro
+      ifelse HasSeparation and ycor <= 7 [
+        set target-patch min-one-of (patches in-radius 1 with [pcolor = yellow]) [distance myself]
+        face target-patch
+        rt 180
+      ] [
+      ; En caso contrario lo que hacemos es elegir entre apuntar a la derecha, izquierda
+      ; diagonal derecha o diagonal izquierda
+        set heading one-of [90 270 45 315]
+      ]
 
+      ; Avanzamos un paso hacia la direccion indicada
+      fd 1
+      ; volvemos a apuntar hacia el sur
+      set heading 180
+      ; avanzamos
+      fd 1
+    ] [
+      ; Si no colicionamos solo avanzamos
+      fd 1
+    ]
+
+    ; Verificamos que si llegamos a la puerta
     if pcolor = green [
       set meta true
     ]
-
+    ; Si ya llegamos a la puerta entonces solo avanzamos en linea recta hacia el sur
     if meta [
       set heading 180
       fd 1
     ]
   ]
 
+  ; Comportamiento de los agentes fuera del vagon
   ask turtles with [color = red] [
+    ; Encontramos la salida mas proxima o la zona de espera mas cercana
     ifelse HasSeparation and not fila [
       let target-patch min-one-of (patches in-radius 25 with [pcolor = yellow]) [distance myself]
       if not meta and target-patch != nobody  [
@@ -56,17 +85,30 @@ to go
         face target-patch
       ]
     ]
-
+    ; Verificamos que no colicionemos con algun agente
     ifelse any? turtles-here with [ color = blue ] [
-      set heading one-of [90 270]
+      ; De ser asi y si tenemos una zona de espera nos dirigimos hacia la
+      ; zona de espera mas cercana
+      ifelse HasSeparation [
+        let target-patch min-one-of (patches in-radius 25 with [pcolor = yellow]) [distance myself]
+        face target-patch
+      ] [
+      ; Si no tenemos separaciones entonces solo elegimos al azar girar hacia la derecha,
+      ; izquierda, diagonal derecha o diagonal izquierda
+        set heading one-of [90 270 135 225]
+      ]
+      ; Avanzamos un paso hacia la dirección calculada
       fd 1
+      ; Apuntamos hacia atras para dejar pasar
       set heading 180
       fd 1
+      ; Volvemos a apuntar hacia el norte
       set heading 0
     ] [
+    ; En caso contrario solo avanzamos
       fd 1
     ]
-
+    ; Verificamos que no entremos
     if pcolor = white [
       rt random 180
       fd 1
@@ -82,7 +124,7 @@ to go
 
     if meta [
       set heading 0
-      fd 1
+      if ycor < 17 [ fd 1 ]
     ]
   ]
   tick
@@ -139,7 +181,7 @@ to dibuja-vagon
   ; Calculamos el tamaño de la salida
   let exitSize (floor (fragmentSize / 2))
   ; Calculamos el tamaño de la separación de entre las salidas
-  let marginSize (ceiling((fragmentSize - exitSize) / ))
+  let marginSize (ceiling((fragmentSize - exitSize) / 4))
 
   while [y <= world-height] [
     while [x <= world-width] [
@@ -256,7 +298,7 @@ NumSalidas
 NumSalidas
 1
 5
-4.0
+5.0
 1
 1
 NIL
@@ -269,7 +311,7 @@ SWITCH
 238
 HasSeparation
 HasSeparation
-0
+1
 1
 -1000
 
@@ -312,7 +354,7 @@ SeparationSize
 SeparationSize
 1
 8
-7.0
+5.0
 1
 1
 NIL
@@ -325,7 +367,7 @@ BUTTON
 49
 NIL
 go
-T
+NIL
 1
 T
 OBSERVER
@@ -338,8 +380,8 @@ NIL
 PLOT
 26
 294
-263
-465
+295
+515
 Usuuarios fuera del vagón
 NIL
 NIL
