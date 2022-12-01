@@ -89,7 +89,8 @@ to go
 end
 
 to dibuja-usuarios
-  let init 8 - SeparationSize
+  ; Creamos a los usuarios dentro del vagon y los posicionamos
+  ; de manera aleatoria
   create-turtles UsuariosAdentro [
     set color blue
     let x-cor (2 + random 37)
@@ -97,9 +98,11 @@ to dibuja-usuarios
     set xcor x-cor
     set ycor y-cor
     set meta false
-    set size 1
   ]
-
+  ; Calculamos la coordenada en y donde iniciara la zona de espera
+  let init 8 - SeparationSize
+  ; Creamos a los usuarios fuera del vagon y los posicionamos
+  ; de manera aleatoria
   create-turtles UsuariosAfuera [
     set color red
         let x-cor (random 40)
@@ -110,12 +113,11 @@ to dibuja-usuarios
         set fila false
         ; verificamos si tenemos zonas de espera
         ; en cuyo caso restingimos a las personas a dicha zona
+        ; asignando de manera aleatoria la zona de espera
         while [HasSeparation and y-cor >= init and ycor < 8 and pcolor != yellow] [
           set x-cor (random 40)
           set xcor x-cor
         ]
-
-        set size 1
   ]
 end
 
@@ -137,7 +139,7 @@ to dibuja-vagon
   ; Calculamos el tamaño de la salida
   let exitSize (floor (fragmentSize / 2))
   ; Calculamos el tamaño de la separación de entre las salidas
-  let marginSize (ceiling((fragmentSize - exitSize) / 3))
+  let marginSize (ceiling((fragmentSize - exitSize) / 4))
 
   while [y <= world-height] [
     while [x <= world-width] [
@@ -157,7 +159,10 @@ to dibuja-vagon
       ; aqui depende del numero de salidas seleccionadas
       if y = 8 and x > 0 and x < 40 [
         ifelse printMargin [
+          ;Dibujamos las separaciones entre las puertas
           ask patch x y [set pcolor white]
+          ; Si el susuario seleccion el poner zonas de espera
+          ; las dibujamos en las separaciones entre las puertas
           if HasSeparation [
             let tempSeparationSize SeparationSize - 1
             while [tempSeparationSize >= 0] [
@@ -166,28 +171,33 @@ to dibuja-vagon
             ]
           ]
         ] [
+        ; Dibujamos las puertas
           ask patch x y [set pcolor green]
         ]
 
+        ; Verificamos si terminamos de dibujar margenes
         ifelse printMargin and tempCount = marginSize [
           set tempCount 0
+          ; Esta condicion asegura que no haya patches verdes extas
+          ; al número de salida
           if tempCountExit < NumSalidas [
               set printMargin false
             ]
         ] [
+        ; Verificamos si terminamos de dibujar las puertas
           ifelse not printMargin and tempCount = exitSize [
             set tempCount 0
             set tempCountExit (tempCountExit + 1)
             set printMargin true
           ] [
+            ; En casi de no haber terminado solo aumentamos contador
             set tempCount (tempCount + 1)
           ]
         ]
       ]
-      ask patch 39 8 [set pcolor white]
+
       set x (x + 1)
     ]
-    set tempCount 0
     set x 0
     set y (y + 1)
   ]
@@ -246,7 +256,7 @@ NumSalidas
 NumSalidas
 1
 5
-5.0
+4.0
 1
 1
 NIL
@@ -302,7 +312,7 @@ SeparationSize
 SeparationSize
 1
 8
-8.0
+7.0
 1
 1
 NIL
