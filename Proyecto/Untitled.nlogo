@@ -103,14 +103,14 @@ to dibuja-usuarios
   create-turtles UsuariosAfuera [
     set color red
         let x-cor (random 40)
-        let y-cor (random 6)
+        let y-cor (random 7)
         set xcor x-cor
         set ycor y-cor
         set meta false
         set fila false
         ; verificamos si tenemos zonas de espera
         ; en cuyo caso restingimos a las personas a dicha zona
-        while [HasSeparation and y-cor > init and ycor < 7 and pcolor != yellow] [
+        while [HasSeparation and y-cor > init and ycor < 8 and pcolor != yellow] [
           set x-cor (random 40)
           set xcor x-cor
         ]
@@ -156,10 +156,15 @@ to dibuja-vagon
       ; Horizontal inferio
       ; aqui depende del numero de salidas seleccionadas
       if y = 8 and x > 0 and x < 40 [
-
-
         ifelse printMargin [
           ask patch x y [set pcolor white]
+          if HasSeparation [
+            let tempSeparationSize SeparationSize - 1
+            while [tempSeparationSize >= 0] [
+              ask patch x (y - tempSeparationSize - 1) [set pcolor yellow]
+              set tempSeparationSize (tempSeparationSize - 1)
+            ]
+          ]
         ] [
           ask patch x y [set pcolor green]
         ]
@@ -178,9 +183,6 @@ to dibuja-vagon
             set tempCount (tempCount + 1)
           ]
         ]
-
-
-
       ]
       ask patch 39 8 [set pcolor white]
       set x (x + 1)
@@ -243,8 +245,8 @@ SLIDER
 NumSalidas
 NumSalidas
 1
-6
-2.0
+5
+5.0
 1
 1
 NIL
@@ -257,7 +259,7 @@ SWITCH
 238
 HasSeparation
 HasSeparation
-1
+0
 1
 -1000
 
@@ -298,9 +300,9 @@ SLIDER
 283
 SeparationSize
 SeparationSize
-0
+1
 6
-3.0
+1.0
 1
 1
 NIL
